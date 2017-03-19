@@ -1,0 +1,82 @@
+<resources>
+    <string name="app_name">Virtual Bienes</string>
+    <string name="action_settings">Settings</string>
+    <string name="access_token">pk.eyJ1IjoibWFydGllbnpqb2phIiwiYSI6ImNpcGo3Y2ptNzAxdXh0ZW00dHcxdGk4ODQifQ.l_iYpVFFuRKlEANvAzoAvA</string>
+    <string name="style_mapbox_streets">mapbox://styles/mapbox/streets-v9</string>
+
+    <string name="tipo_de_propiedad">Tipo de Propiedad</string>
+
+    <string-array name="tipo_de_propiedad">
+        <item>Tipo de Propiedad</item>
+        <item>Casa</item>
+        <item>Apartamento</item>
+        <item>Apartaestudio</item>
+        <item>Local Comercial</item>
+        <item>Finca</item>
+        <item>Parqueadero</item>
+        <item>Lote</item>
+        <item>Bodega</item>
+        <item>Oficina</item>
+        <item>Consultorio</item>
+    </string-array>
+
+    <string-array name="tipo_de_anuncio">
+        <item>Tipo de Anuncio</item>
+        <item>Venta</item>
+        <item>Arriendo</item>
+        <item>Alquiler Vacacional</item>
+    </string-array>
+
+    <string-array name="estrato">
+        <item>Estrato</item>
+        <item>No Aplica</item>
+        <item>Estrato 1</item>
+        <item>Estrato 2</item>
+        <item>Estrato 3</item>
+        <item>Estrato 4</item>
+        <item>Estrato 5</item>
+        <item>Estrato 6</item>
+    </string-array>
+
+    <string-array name="tipo_de_divisa">
+        <item>Divisa</item>
+        <item>COP</item>
+    </string-array>
+
+    <string-array name="tipo_de_medida">
+        <item>Tipo de Medida</item>
+        <item>Metros Cuadrados</item>
+        <item>Frenagada</item>
+        <item>Hectáreas</item>
+    </string-array>
+
+    <string-array name="tipo_de_parqueadero">
+        <item>Tipo de Parqueadero</item>
+        <item>Sin parqueadero</item>
+        <item>Parqueadero Común - Cubierto</item>
+        <item>Parqueadero Común - No Cubierto</item>
+        <item>Parqueadero Sencillo - Cubierno</item>
+        <item>Parqueadero Sencillo - No Cubierno</item>
+        <item>Doble Parqueadero - Lineal Cubierto</item>
+        <item>Doble Parqueadero - Lineal No Cubierto</item>
+        <item>Doble Parqueadero - Paralelo Cubierto</item>
+        <item>Doble Parqueadero - Paralelo No Cubierto</item>
+        <item>Múltiple Parqueadero (Mas de dos)</item>
+    </string-array>
+
+    <string-array name="condiciones_parqueadero">
+        <item>Condiciones</item>
+        <item>Sobre planos</item>
+        <item>Nuevo/Estrenar</item>
+        <item>Usado</item>
+    </string-array>
+
+    <string-array name="tipo_de_publicacion">
+        <item>Tipo de Publicación</item>
+        <item>Venta Directa</item>
+        <item>Agente Inmobiliario</item>
+    </string-array>
+
+
+
+</resources>
