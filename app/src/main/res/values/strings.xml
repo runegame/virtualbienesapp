@@ -8,16 +8,30 @@
 
     <string-array name="tipo_de_propiedad">
         <item>Tipo de Propiedad</item>
-        <item>Casa</item>
-        <item>Apartamento</item>
-        <item>Apartaestudio</item>
-        <item>Local Comercial</item>
-        <item>Finca</item>
-        <item>Parqueadero</item>
-        <item>Lote</item>
-        <item>Bodega</item>
-        <item>Oficina</item>
-        <item>Consultorio</item>
+        <item>Casas</item>
+        <item>Apartamentos</item>
+        <item>Apartaestudios</item>
+        <item>Locales Comerciales</item>
+        <item>Fincas</item>
+        <item>Parqueaderos</item>
+        <item>Lotes</item>
+        <item>Bodegas</item>
+        <item>Oficinas</item>
+        <item>Consultorios</item>
+    </string-array>
+
+    <string-array name="tipo_de_propiedad_values">
+        <item></item>
+        <item>VB001</item>
+        <item>VB002</item>
+        <item>VB003</item>
+        <item>VB004</item>
+        <item>VB005</item>
+        <item>VB006</item>
+        <item>VB007</item>
+        <item>VB008</item>
+        <item>VB009</item>
+        <item>VB010</item>
     </string-array>
 
     <string-array name="tipo_de_anuncio">
@@ -25,6 +39,12 @@
         <item>Venta</item>
         <item>Arriendo</item>
         <item>Alquiler Vacacional</item>
+    </string-array>
+
+    <string-array name="tipo_de_anuncio_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
     </string-array>
 
     <string-array name="estrato">
@@ -38,8 +58,22 @@
         <item>Estrato 6</item>
     </string-array>
 
+    <string-array name="estrato_values">
+        <item>NA</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+
     <string-array name="tipo_de_divisa">
         <item>Divisa</item>
+        <item>COP</item>
+    </string-array>
+
+    <string-array name="tipo_de_divisa_values">
         <item>COP</item>
     </string-array>
 
@@ -50,8 +84,28 @@
         <item>Hectáreas</item>
     </string-array>
 
+    <string-array name="tipo_de_medida_values">
+        <item>m2</item>
+        <item>frenagada</item>
+        <item>ha</item>
+    </string-array>
+
     <string-array name="tipo_de_parqueadero">
         <item>Tipo de Parqueadero</item>
+        <item>Sin parqueadero</item>
+        <item>Parqueadero Común - Cubierto</item>
+        <item>Parqueadero Común - No Cubierto</item>
+        <item>Parqueadero Sencillo - Cubierno</item>
+        <item>Parqueadero Sencillo - No Cubierno</item>
+        <item>Doble Parqueadero - Lineal Cubierto</item>
+        <item>Doble Parqueadero - Lineal No Cubierto</item>
+        <item>Doble Parqueadero - Paralelo Cubierto</item>
+        <item>Doble Parqueadero - Paralelo No Cubierto</item>
+        <item>Múltiple Parqueadero (Mas de dos)</item>
+    </string-array>
+
+    <string-array name="tipo_de_parqueadero_values">
+        <item>""</item>
         <item>Sin parqueadero</item>
         <item>Parqueadero Común - Cubierto</item>
         <item>Parqueadero Común - No Cubierto</item>

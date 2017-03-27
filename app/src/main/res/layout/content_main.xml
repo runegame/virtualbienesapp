@@ -87,6 +87,7 @@
                 </LinearLayout>
 
                 <ImageView
+                    android:id="@+id/find_lat_long"
                     android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -129,6 +130,7 @@
 
 
             <Spinner
+                android:id="@+id/type_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="?android:attr/listPreferredItemHeight"
@@ -136,12 +138,14 @@
                 android:prompt="@string/tipo_de_propiedad"/>
 
             <Spinner
+                android:id="@+id/type_ad_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="?android:attr/listPreferredItemHeight"
                 android:entries="@array/tipo_de_anuncio"/>
 
             <Spinner
+                android:id="@+id/stratum_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="?android:attr/listPreferredItemHeight"
@@ -157,12 +161,14 @@
                 android:textColor="@color/black"/>
 
             <Spinner
+                android:id="@+id/coin_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:entries="@array/tipo_de_divisa"
                 android:minHeight="?android:attr/listPreferredItemHeight"/>
 
             <EditText
+                android:id="@+id/price_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Monto"
@@ -179,6 +185,7 @@
                 android:textColor="@color/black"/>
 
             <EditText
+                android:id="@+id/rooms_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Ingresa un numero de habitaciones"
@@ -193,12 +200,14 @@
 
 
             <Spinner
+                android:id="@+id/measure_type_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:entries="@array/tipo_de_medida"
                 android:minHeight="?android:attr/listPreferredItemHeight"/>
 
             <EditText
+                android:id="@+id/built_area_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="?android:attr/listPreferredItemHeight"
@@ -215,12 +224,14 @@
 
 
             <Spinner
+                android:id="@+id/type_parking_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="?android:attr/listPreferredItemHeight"
                 android:entries="@array/tipo_de_parqueadero"/>
 
             <Spinner
+                android:id="@+id/parking_conditions_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="?android:attr/listPreferredItemHeight"
@@ -242,6 +253,7 @@
                 android:minHeight="?android:attr/listPreferredItemHeight"/>
 
             <Button
+                android:id="@+id/post_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Guardar propiedad"

@@ -10,15 +10,19 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringDef;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 
 import com.mapbox.mapboxsdk.MapboxAccountManager;
@@ -43,14 +47,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
     private final int LOAD_SECTORS_ASYNCTASK = 3;
     private final int LOAD_NEIGHBORHOODS_ASYNCTASK = 4;
 
+    private boolean enabledGps = false;
+    private boolean findButton = false;
 
     private MapView mapView;
     private MapboxMap map;
@@ -73,6 +83,9 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText latEditText;
     private EditText longEditText;
+    private EditText priceEditText;
+    private EditText roomsEditText;
+    private EditText builtAreaEditText;
 
     Handler handler;
 
@@ -81,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
     private LoadMunicipalityAsynctask munsAsynctask;
     private LoadSectorsAsynctask secsAsynctask;
     private LoadNeighborhoodsAsynctask neighsAsynctask;
+    private PostItemAsyncTask postItemAsyncTask;
 
     private List<Department> departments;
     private List<Municipality> municipalities;
@@ -91,6 +105,28 @@ public class MainActivity extends AppCompatActivity {
     private Spinner municipalitiesSpinner;
     private Spinner sectorsSpinner;
     private Spinner neighborhoodsSpinner;
+    private Spinner typeSpinner;
+    private Spinner typeAdSpinner;
+    private Spinner stratumSpinner;
+    private Spinner coinSpinner;
+    private Spinner measureTypeSpinner;
+    private Spinner typeParkingSpinner;
+    private Spinner parkingConditionsSpinner;
+    
+
+    private ImageView findLatLongImageView;
+    private Button postButton;
+
+    private int intDepartment;
+    private int intMunicipality;
+    private int intSector;
+    private int intNeigborhood;
+
+    private String[] typeValues;
+    private String[] typeAdValues;
+    private String[] stratumValues;
+    private String[] coinValues;
+    private String[] measureValues;
 
     private static final int PERMISSIONS_LOCATION = 0;
 
@@ -119,6 +155,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        typeValues = getResources().getStringArray(R.array.tipo_de_propiedad_values);
+        typeAdValues = getResources().getStringArray(R.array.tipo_de_anuncio_values);
+        stratumValues = getResources().getStringArray(R.array.estrato_values);
+        coinValues = getResources().getStringArray(R.array.tipo_de_divisa_values);
+        measureValues = getResources().getStringArray(R.array.tipo_de_medida_values);
+
         floatingActionButton = (FloatingActionButton) findViewById(R.id.location_toggle_fab);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -140,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     munsAsynctask = new LoadMunicipalityAsynctask();
                     munsAsynctask.execute((Integer) departments.get(i-1).getId());
+                    municipalitiesSpinner.setSelection(0,false);
                 } else {
                     municipalitiesSpinner.setSelection(0,false);
                     municipalitiesSpinner.setEnabled(false);
@@ -162,6 +205,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                     secsAsynctask = new LoadSectorsAsynctask();
                     secsAsynctask.execute((Integer) municipalities.get(i-1).getId());
+                    sectorsSpinner.setSelection(0,false);
+                    sectorsSpinner.setEnabled(false);
                 } else {
                     sectorsSpinner.setSelection(0,false);
                     sectorsSpinner.setEnabled(false);
@@ -184,7 +229,9 @@ public class MainActivity extends AppCompatActivity {
                         neighsAsynctask.cancel(true);
                     }
                     neighsAsynctask = new LoadNeighborhoodsAsynctask();
-                    neighsAsynctask.execute((Integer) sectors.get(i-1).getId());
+                    neighsAsynctask.execute(municipalities.get(municipalitiesSpinner.getSelectedItemPosition()-1).getId());
+                    neighborhoodsSpinner.setSelection(0,false);
+                    neighborhoodsSpinner.setEnabled(false);
                 } else {
                     neighborhoodsSpinner.setSelection(0,false);
                     neighborhoodsSpinner.setEnabled(false);
@@ -210,8 +257,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        typeSpinner = (Spinner) findViewById(R.id.type_spinner);
+        typeAdSpinner = (Spinner) findViewById(R.id.type_ad_spinner);
+        stratumSpinner = (Spinner) findViewById(R.id.stratum_spinner);
+        coinSpinner = (Spinner) findViewById(R.id.coin_spinner);
+        measureTypeSpinner = (Spinner) findViewById(R.id.measure_type_spinner);
+        typeParkingSpinner = (Spinner) findViewById(R.id.type_parking_spinner);
+        parkingConditionsSpinner = (Spinner) findViewById(R.id.parking_conditions_spinner);
+
         latEditText = (EditText) findViewById(R.id.latEditText);
         longEditText = (EditText) findViewById(R.id.longEditText);
+        priceEditText = (EditText) findViewById(R.id.price_edit_text);
+        roomsEditText = (EditText) findViewById(R.id.rooms_edit_text);
+        builtAreaEditText = (EditText) findViewById(R.id.rooms_edit_text);
+
 
         handler = new Handler() {
             @Override
@@ -219,29 +278,116 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(LOG_TAG,"Manejando mensaje");
 
                 switch (msg.arg1) {
+
                     case LOAD_POLYGON_ASYNCTASK:
                         drawPolygon((List<LatLng>) msg.obj);
+                        Log.e(LOG_TAG,String.valueOf(intDepartment));
+                        departmentsSpinner.setSelection(0,false);
+                        if (enabledGps || findButton) {
+                            departmentsSpinner.setSelection(getSelection(LOAD_DEPARTMENTS_ASYNCTASK));
+                            intDepartment = 0;
+                        }
                         break;
+
                     case LOAD_DEPARTMENTS_ASYNCTASK:
                         swapAdapterDepartmentSpinner((List<String>) msg.obj);
+                        if (enabledGps || findButton) {
+                            departmentsSpinner.setSelection(getSelection(LOAD_DEPARTMENTS_ASYNCTASK));
+                            intDepartment = 0;
+                        }
                         break;
                     case LOAD_MUNICIPALITIES_ASYNCTASK:
                         swapAdapterMunicipalitiesSpinner((List<String>) msg.obj);
-                        municipalitiesSpinner.setEnabled(true);
+                        if (enabledGps || findButton) {
+                            municipalitiesSpinner.setEnabled(!enabledGps);
+                            Log.e(LOG_TAG,String.valueOf(intMunicipality));
+                            municipalitiesSpinner.setSelection(getSelection(LOAD_MUNICIPALITIES_ASYNCTASK));
+                            intMunicipality = 0;
+                        }
                         break;
                     case LOAD_SECTORS_ASYNCTASK:
                         swapAdapterSectorsSpinner((List<String>) msg.obj);
-                        sectorsSpinner.setEnabled(true);
+                        if (enabledGps || findButton) {
+                            sectorsSpinner.setEnabled(!enabledGps);
+                            Log.e(LOG_TAG,String.valueOf(intSector));
+                            sectorsSpinner.setSelection(getSelection(LOAD_SECTORS_ASYNCTASK));
+                            intSector = 0;
+                        }
                         break;
                     case LOAD_NEIGHBORHOODS_ASYNCTASK:
                         swapAdapterNeighborhoodsSpinner((List<String>) msg.obj);
-                        neighborhoodsSpinner.setEnabled(true);
+                        if (enabledGps || findButton) {
+                            neighborhoodsSpinner.setEnabled(!enabledGps);
+                            Log.e(LOG_TAG,String.valueOf(intNeigborhood));
+                            neighborhoodsSpinner.setSelection(getSelection(LOAD_NEIGHBORHOODS_ASYNCTASK));
+                            intNeigborhood = 0;
+                            findButton = false;
+                        }
                         break;
                 }
             }
         };
 
         initSpinners();
+
+        findLatLongImageView = (ImageView) findViewById(R.id.find_lat_long);
+        findLatLongImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!(latEditText.getText().toString().equals("") && longEditText.getText().toString().equals(""))) {
+                    LatLng latLng = new LatLng(Double.valueOf(latEditText.getText().toString()),Double.valueOf(longEditText.getText().toString()));
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+                    if (loadPolygonAsynctask==null) {
+                        executeLoadPolygonAsynctask(longEditText.getText().toString(),latEditText.getText().toString());
+                        findButton = true;
+                    }
+                }
+            }
+        });
+
+        postButton = (Button) findViewById(R.id.post_button);
+        postButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!(latEditText.getText().toString().equals("") && longEditText.getText().toString().equals(""))
+                        && departmentsSpinner.getSelectedItemPosition()!=0
+                        && municipalitiesSpinner.getSelectedItemPosition()!=0
+                        && sectorsSpinner.getSelectedItemPosition()!=0
+                        && neighborhoodsSpinner.getSelectedItemPosition()!=0
+                        && typeSpinner.getSelectedItemPosition()!=0
+                        && typeAdSpinner.getSelectedItemPosition()!=0) {
+
+                    if (postItemAsyncTask==null) {
+                        try {
+                            String data = "latlng=" + URLEncoder.encode(longEditText.getText().toString()+","+latEditText.getText().toString(),"UTF-8")+
+                                    "&"+ "deps="+URLEncoder.encode(String.valueOf(departments.get(departmentsSpinner.getSelectedItemPosition()-1).getId()),"UTF-8")+
+                                    "&"+ "muns="+URLEncoder.encode(String.valueOf(municipalities.get(municipalitiesSpinner.getSelectedItemPosition()-1).getId()),"UTF-8")+
+                                    "&"+ "sector="+URLEncoder.encode(String.valueOf(sectors.get(sectorsSpinner.getSelectedItemPosition()-1).getId()),"UTF-8")+
+                                    "&"+ "neigh="+URLEncoder.encode(String.valueOf(neighborhoods.get(neighborhoodsSpinner.getSelectedItemPosition()-1).getId()),"UTF-8")+
+                                    "&"+ "type="+URLEncoder.encode(typeValues[typeSpinner.getSelectedItemPosition()-1],"UTF-8")+
+                                    "&"+ "type_ad="+URLEncoder.encode(typeAdValues[typeAdSpinner.getSelectedItemPosition()-1],"UTF-8")+
+                                    "&"+ "stratum="+URLEncoder.encode(stratumValues[stratumSpinner.getSelectedItemPosition()-1],"UTF-8")+
+                                    "&"+ "coin="+URLEncoder.encode(coinValues[coinSpinner.getSelectedItemPosition()-1],"UTF-8")+
+                                    "&"+ "price="+URLEncoder.encode(priceEditText.getText().toString(),"UTF-8")+
+                                    "&"+ "rooms="+URLEncoder.encode(roomsEditText.getText().toString(),"UTF-8")+
+                                    "&"+ "elevator="+URLEncoder.encode("","UTF-8")+
+                                    "&"+ "measure="+URLEncoder.encode(measureValues[measureTypeSpinner.getSelectedItemPosition()-1],"UTF-8")+
+                                    "&"+ "built_area="+URLEncoder.encode(builtAreaEditText.getText().toString(),"UTF-8")+
+                                    "&"+ "parking="+URLEncoder.encode("","UTF-8")+
+                                    "&"+ "parking_amount="+URLEncoder.encode("","UTF-8")+
+                                    "&"+ "p_conditions="+URLEncoder.encode("","UTF-8")+
+                                    "&"+ "antiquity="+URLEncoder.encode("","UTF-8")+
+                                    "&"+ "t_publish="+URLEncoder.encode("","UTF-8")+
+                                    "&"+ "link="+URLEncoder.encode("","UTF-8");
+                            postItemAsyncTask = new PostItemAsyncTask();
+                            postItemAsyncTask.execute(data);
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
     }
 
     private void initSpinners() {
@@ -378,7 +524,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
             floatingActionButton.setImageResource(R.drawable.ic_location_disabled_24dp);
+            enabledGps = true;
+            updateSpinners();
+            latEditText.setEnabled(false);
+            longEditText.setEnabled(false);
+            intDepartment = 0;
+            intMunicipality = 0;
+            intSector = 0;
+            intNeigborhood = 0;
         } else {
+            enabledGps = false;
+            updateSpinners();
+            latEditText.setEnabled(true);
+            longEditText.setEnabled(true);
             floatingActionButton.setImageResource(R.drawable.ic_my_location_24dp);
             if (loadPolygonAsynctask !=null) {
                 cancelLoadPolygonAsyncTask();
@@ -391,6 +549,13 @@ public class MainActivity extends AppCompatActivity {
         }
         // Enable or disable the location layer on the map
         map.setMyLocationEnabled(enabled);
+    }
+
+    private void updateSpinners() {
+        departmentsSpinner.setEnabled(!enabledGps);
+        municipalitiesSpinner.setEnabled(!enabledGps);
+        sectorsSpinner.setEnabled(!enabledGps);
+        neighborhoodsSpinner.setEnabled(!enabledGps);
     }
 
     private void executeLoadPolygonAsynctask(String latitud, String longitude) {
@@ -414,6 +579,42 @@ public class MainActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         departmentsSpinner.setAdapter(adapter);
         departmentsSpinner.setEnabled(true);
+    }
+
+    public int getSelection(int ASYNCTASK_ID) {
+        switch (ASYNCTASK_ID) {
+            case LOAD_DEPARTMENTS_ASYNCTASK:
+                for (int i = 0; i < departments.size(); i++) {
+                    if (departments.get(i).getId()==intDepartment) {
+                        return i+1;
+                    }
+                }
+                break;
+            case LOAD_MUNICIPALITIES_ASYNCTASK:
+                for (int i = 0; i < departments.size(); i++) {
+                    if (municipalities.get(i).getId()==intMunicipality) {
+                        return i+1;
+                    }
+                }
+                break;
+            case LOAD_SECTORS_ASYNCTASK:
+                for (int i = 0; i < sectors.size(); i++) {
+                    if (sectors.get(i).getId()==intSector) {
+                        return i+1;
+                    }
+                }
+                break;
+            case LOAD_NEIGHBORHOODS_ASYNCTASK:
+                for (int i = 0; i < neighborhoods.size(); i++) {
+                    if (neighborhoods.get(i).getId()==intNeigborhood) {
+                        return i+1;
+                    }
+                }
+                break;
+
+        }
+
+        return 0;
     }
 
     private void swapAdapterMunicipalitiesSpinner (List<String> muns) {
@@ -543,7 +744,7 @@ public class MainActivity extends AppCompatActivity {
             final String OWM_BOUNDARY = "boundary";
 
             try {
-                JSONObject polygonJson = new JSONObject(polygonJsonStr);
+                    JSONObject polygonJson = new JSONObject(polygonJsonStr);
 
                 if (polygonJson.has(OWM_MESSAGE_CODE)) {
                     Log.e(LOG_TAG,"JSON Recibido correctamente");
@@ -554,12 +755,12 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject insideJsonObject =  insideArray.getJSONObject(0);
 
 
-                String id = insideJsonObject.getString(OWM_ID);
+                intNeigborhood = insideJsonObject.getInt(OWM_ID);
                 String data_name = insideJsonObject.getString(OWM_DATA_NAME);
                 String point = insideJsonObject.getString(OWM_POINT);
-                String dep = insideJsonObject.getString(OWM_DEP);
-                String mun = insideJsonObject.getString(OWM_MUN);
-                String sec = insideJsonObject.getString(OWM_SEC);
+                intDepartment = insideJsonObject.getInt(OWM_DEP);
+                intMunicipality = insideJsonObject.getInt(OWM_MUN);
+                intSector = insideJsonObject.getInt(OWM_SEC);
                 String boundary = insideJsonObject.getString(OWM_BOUNDARY);
 
                 Log.e(LOG_TAG,boundary);
@@ -684,8 +885,6 @@ public class MainActivity extends AppCompatActivity {
                                 depJsonObject.getString(OWM_POINT)));
 
                         deps.add(depJsonObject.getString(OWM_DATA_NAME));
-
-                        Log.e(LOG_TAG,deps.get(i).toString());
                     }
                 } else {
                     return deps;
@@ -799,8 +998,6 @@ public class MainActivity extends AppCompatActivity {
                             munJsonObject.getString(OWM_DEP)));
 
                     muns.add(munJsonObject.getString(OWM_DATA_NAME));
-
-                    Log.e(LOG_TAG,muns.get(i).toString());
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -901,8 +1098,6 @@ public class MainActivity extends AppCompatActivity {
                             secJsonObject.getString(OWM_POINT)));
 
                     secs.add(secJsonObject.getString(OWM_DATA_NAME));
-
-                    Log.e(LOG_TAG,secs.get(i).toString());
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -932,6 +1127,7 @@ public class MainActivity extends AppCompatActivity {
         protected List<String> doInBackground(Integer... integers) {
             try {
                 URL url = new URL("http://virtualbienes.com/api/public/neighs_op/"+integers[0]);
+                Log.e(LOG_TAG,url.toString());
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
@@ -1003,7 +1199,7 @@ public class MainActivity extends AppCompatActivity {
 
                     neigs.add(neighJsonObject.getString(OWM_DATA_NAME));
 
-                    Log.e(LOG_TAG,neigs.get(i).toString());
+                    // Log.e(LOG_TAG,neigs.get(i).toString()+neighJsonObject.getString(OWM_ID));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -1021,4 +1217,48 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private class PostItemAsyncTask extends AsyncTask<String,Void,Void> {
+
+        private HttpURLConnection urlConnection = null;
+
+        private String responseJsonStr = null;
+
+        @Override
+        protected Void doInBackground(String... strings) {
+
+            String data = strings[0];
+
+            Log.e(LOG_TAG,data);
+
+            try {
+                URL url = new URL("http://virtualbienes.com/api/public/p_estadisticas");
+
+                urlConnection = (HttpURLConnection) url.openConnection();
+
+                urlConnection.setDoOutput(true);
+
+                urlConnection.setFixedLengthStreamingMode(data.getBytes().length);
+
+                // urlConnection.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+
+                OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
+
+                out.write(data.getBytes());
+                out.flush();
+                out.close();
+
+                responseJsonStr = urlConnection.getResponseMessage();
+
+                Log.e(LOG_TAG,responseJsonStr);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (urlConnection!=null){
+                    urlConnection.disconnect();
+                }
+            }
+            return null;
+        }
+    }
 }
